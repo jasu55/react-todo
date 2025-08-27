@@ -1,32 +1,55 @@
 "use client";
-import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { use, useState } from "react";
 
 import { Button, Tasks } from "@/components";
-const buttons = [
-  { text: "All", isActive: true },
-  { text: "Active", isActive: false },
-  { text: "Completed", isActive: false },
-];
-// const tasks = [
-//   { taskName: "Sample Task", isDone: false },
-//   { taskName: "Another Task", isDone: true },
-//   { taskName: "Another Task", isDone: true },
-//   { taskName: "Another Task", isDone: true },
-//   { taskName: "Another Task", isDone: true },
-// ];
+
 export default function Home() {
   const [tasks, setTasks] = useState([]);
+  const [status, setStatus] = useState("All");
+
+  const handleStatus = (status) => {
+    setStatus(status);
+  };
+
   console.log(tasks, "tasks");
 
   const [inputValue, setInputValue] = useState("");
 
   const handleOnchange = (event) => {
     setInputValue(event.target.value);
-    console.log(event.target.value);
   };
 
   const handleOnClick = () => {
-    const newTasks = [...tasks, inputValue];
+    const newTasks = [
+      ...tasks,
+      { text: inputValue, isDone: false, id: uuidv4() },
+    ];
+    setTasks(newTasks);
+    setInputValue("");
+  };
+
+  const handleOnchangeCheckBox = (event, id) => {
+    const newTasks = tasks.map((el, i) => {
+      if (el.id === id) el.isDone = event.target.checked;
+      return el;
+    });
+    setTasks(newTasks);
+  };
+
+  const handleDelete = (id) => {
+    const newTasks = tasks.filter((task) => task.id !== id);
+    setTasks(newTasks);
+  };
+
+  const filteredTasks = tasks.filter((task) => {
+    if (status === "All") return true;
+    if (status === "Active") return !task.isDone;
+    return task.isDone;
+  });
+
+  const handleClearCompleted = () => {
+    const newTasks = tasks.filter((task) => task.isDone === false);
     setTasks(newTasks);
   };
 
@@ -38,8 +61,9 @@ export default function Home() {
           <input
             type="text"
             placeholder="Add a new task..."
-            className="border border-[#E4E4E7]  px-[16px] py-[8px] w-[280px]"
+            className="border border-[#E4E4E7]  px-[16px] py-[8px] w-[280px] rounded-md"
             onChange={handleOnchange}
+            value={inputValue}
           />
           <button
             className="px-16px bg-[#3C82F6] text-white px-[16px] py-[8px] rounded-md"
@@ -49,15 +73,41 @@ export default function Home() {
           </button>
         </div>
         <div className="flex gap-[6px]  w-full">
-          {buttons.map((button, index) => (
-            <Button key={index} text={button.text} isActive={button.isActive} />
-          ))}
+          <Button text="All" status={status} handleStatus={handleStatus} />
+          <Button text="Active" status={status} handleStatus={handleStatus} />
+          <Button
+            text="Completed"
+            status={status}
+            handleStatus={handleStatus}
+          />
         </div>
-        {tasks.map((task, index) => (
-          <Tasks key={index} taskText={task} isDone={task.isDone} />
+        {filteredTasks.map((task) => (
+          <Tasks
+            key={task.id}
+            id={task.id}
+            taskText={task.text}
+            isDone={task.isDone}
+            handleOnchangeCheckBox={handleOnchangeCheckBox}
+            handleDelete={() => handleDelete(task.id)}
+          />
         ))}
 
-        <p className="text-[#6B7280] py-[30px]">No tasks yet. Add one above!</p>
+        {tasks.length === 0 ? (
+          <p className="text-[#6B7280] py-[30px]">
+            No tasks yet. Add one above!
+          </p>
+        ) : (
+          <div className="border-t-[1px] border-[#E4E4E7]  w-full flex justify-between mb-[44px] pt-[16px]  ">
+            <p className="text-[#6B7280]  ">
+              {tasks.filter((task) => task.isDone === true).length} of{" "}
+              {tasks.length} tasks completed
+            </p>
+            <button onClick={handleClearCompleted} className="text-[#EF4444]">
+              Clear Completed
+            </button>
+          </div>
+        )}
+
         <p className="text-[#6B7280]">
           Powered by <span className="text-[#3B73ED]">Pinecone academy</span>
         </p>
@@ -65,60 +115,3 @@ export default function Home() {
     </div>
   );
 }
-// export default function Home() {
-//   const [tasks, setTasks] = useState([]);
-//   const [taskInput, setTaskInput] = useState("");
-
-//   const handleAddTask = () => {
-//     if (taskInput.trim()) {
-//       setTasks([...tasks, { taskName: taskInput, isDone: false }]);
-//       setTaskInput("");
-//     }
-//   };
-
-//   return (
-//     <div className="w-screen bg-[#F3F4F6] h-[1500px] pt-[20px]">
-//       <div className="flex flex-col items-center w-[377px] mx-auto rounded-md bg-white mt-[60px] px-[24px] py-[16px] shadow-md">
-//         <h3 className="text-xl font-semibold">To-Do list</h3>
-//         <div className="flex my-[19px] w-full gap-2">
-//           <input
-//             type="text"
-//             placeholder="Add a new task..."
-//             value={taskInput}
-//             onChange={(e) => setTaskInput(e.target.value)}
-//             className="border border-[#E4E4E7] px-[16px] py-[8px] w-[280px]"
-//           />
-//           <button
-//             onClick={handleAddTask}
-//             className="bg-[#3C82F6] text-white px-[16px] py-[8px] rounded-md"
-//           >
-//             Add
-//           </button>
-//         </div>
-//         <div className="flex gap-[6px] w-full">
-//           {/* Buttons can be added here */}
-//         </div>
-//         {tasks.map((task, index) => (
-//           <Tasks key={index} taskName={task.taskName} isDone={task.isDone} />
-//         ))}
-//         {tasks.length === 0 && (
-//           <p className="text-[#6B7280] py-[30px]">
-//             No tasks yet. Add one above!
-//           </p>
-//         )}
-//         <p className="text-[#6B7280]">
-//           Powered by <span className="text-[#3B73ED]">Pinecone academy</span>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }
-// export default function todo() {
-//   const [array, setArray] = useState([]);
-//   return (
-//     <div>
-//       {array}
-//       <button onClick={() => setArray([...array, "a"])}>b</button>
-//     </div>
-//   );
-// }

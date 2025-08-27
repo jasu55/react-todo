@@ -1,11 +1,12 @@
-export function Button(props) {
+export function Button({ status, text, handleStatus }) {
   return (
     <button
+      onClick={() => handleStatus(text)}
       className={`px-[12px] py-[4px]  rounded-md ${
-        props.isActive ? "bg-[#3C82F6] text-white" : "bg-[#F3F4F6]  text-black"
+        status === text ? "bg-[#3C82F6] text-white" : "bg-[#F3F4F6]  text-black"
       }`}
     >
-      {props.text}
+      {text}
     </button>
   );
 }
