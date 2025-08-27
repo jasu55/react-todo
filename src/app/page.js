@@ -5,41 +5,21 @@ import { use, useState } from "react";
 import { Button, Tasks } from "@/components";
 
 export default function Home() {
+  const [inputValue, setInputValue] = useState("");
   const [tasks, setTasks] = useState([]);
   const [status, setStatus] = useState("All");
-
-  const handleStatus = (status) => {
-    setStatus(status);
-  };
-
-  console.log(tasks, "tasks");
-
-  const [inputValue, setInputValue] = useState("");
 
   const handleOnchange = (event) => {
     setInputValue(event.target.value);
   };
 
   const handleOnClick = () => {
-    const newTasks = [
-      ...tasks,
-      { text: inputValue, isDone: false, id: uuidv4() },
-    ];
-    setTasks(newTasks);
+    setTasks([...tasks, { text: inputValue, isDone: false, id: uuidv4() }]);
     setInputValue("");
   };
 
-  const handleOnchangeCheckBox = (event, id) => {
-    const newTasks = tasks.map((el, i) => {
-      if (el.id === id) el.isDone = event.target.checked;
-      return el;
-    });
-    setTasks(newTasks);
-  };
-
-  const handleDelete = (id) => {
-    const newTasks = tasks.filter((task) => task.id !== id);
-    setTasks(newTasks);
+  const handleStatus = (status) => {
+    setStatus(status);
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -47,6 +27,20 @@ export default function Home() {
     if (status === "Active") return !task.isDone;
     return task.isDone;
   });
+
+  const handleOnchangeCheckBox = (event, id) => {
+    setTasks(
+      tasks.map((task) => {
+        if (task.id === id) task.isDone = event.target.checked;
+        return task;
+      })
+    );
+  };
+
+  const handleDelete = (id) => {
+    const newTasks = tasks.filter((task) => task.id !== id);
+    setTasks(newTasks);
+  };
 
   const handleClearCompleted = () => {
     const newTasks = tasks.filter((task) => task.isDone === false);
@@ -57,6 +51,7 @@ export default function Home() {
     <div className="w-screen bg-[#F3F4F6] h-[1500px] pt-[20px]">
       <div className="flex flex-col items-center  w-[377px] mx-auto rounded-md bg-[#FFFFFF] mt-[60px] px-[24px] py-[16px]  shadow-md">
         <h3 className="text-xl font-semibold">To-Do list</h3>
+
         <div className="flex my-[19px] w-full gap-2">
           <input
             type="text"
@@ -65,6 +60,7 @@ export default function Home() {
             onChange={handleOnchange}
             value={inputValue}
           />
+
           <button
             className="px-16px bg-[#3C82F6] text-white px-[16px] py-[8px] rounded-md"
             onClick={handleOnClick}
@@ -72,6 +68,7 @@ export default function Home() {
             Add
           </button>
         </div>
+
         <div className="flex gap-[6px]  w-full">
           <Button text="All" status={status} handleStatus={handleStatus} />
           <Button text="Active" status={status} handleStatus={handleStatus} />
@@ -81,6 +78,7 @@ export default function Home() {
             handleStatus={handleStatus}
           />
         </div>
+
         {filteredTasks.map((task) => (
           <Tasks
             key={task.id}
