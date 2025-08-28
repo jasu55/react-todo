@@ -1,6 +1,6 @@
 "use client";
 import { v4 as uuidv4 } from "uuid";
-import { use, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button, Tasks } from "@/components";
 
@@ -8,14 +8,31 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [tasks, setTasks] = useState([]);
   const [status, setStatus] = useState("All");
+  const [editTask, setEditTask] = useState(true);
 
   const handleOnchange = (event) => {
     setInputValue(event.target.value);
   };
 
   const handleOnClick = () => {
+    if (inputValue.trim() === "") {
+      alert("Please enter a task.");
+      return;
+    }
     setTasks([...tasks, { text: inputValue, isDone: false, id: uuidv4() }]);
     setInputValue("");
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      console.log("EVENTKEY value", event.key, inputValue);
+      if (inputValue.trim() === "") {
+        alert("Please enter a task.");
+        return;
+      }
+      setTasks([...tasks, { text: inputValue, isDone: false, id: uuidv4() }]);
+      setInputValue("");
+    }
   };
 
   const handleStatus = (status) => {
@@ -38,13 +55,50 @@ export default function Home() {
   };
 
   const handleDelete = (id) => {
-    const newTasks = tasks.filter((task) => task.id !== id);
-    setTasks(newTasks);
+    const taskToDelete = tasks.find((task) => task.id === id);
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${taskToDelete?.text}" task?`
+      )
+    ) {
+      setTasks(tasks.filter((task) => task.id !== id));
+    }
   };
 
   const handleClearCompleted = () => {
-    const newTasks = tasks.filter((task) => task.isDone === false);
-    setTasks(newTasks);
+    if (tasks.filter((task) => task.isDone === true).length === 0) {
+      alert("No completed tasks to delete.");
+      return;
+    }
+    if (
+      window.confirm("Are you sure you want to delete all completed tasks?")
+    ) {
+      setTasks(tasks.filter((task) => task.isDone === false));
+    }
+  };
+
+  const handleEditInput = (event, id) => {
+    setTasks(
+      tasks.map((task) => {
+        if (task.id === id) task.text = event.target.value;
+        return task;
+      })
+    );
+  };
+
+  const handleEdit = (id) => {
+    const taskToEdit = tasks.find((task) => task.id === id);
+    // const newTaskText = prompt("Edit task:", taskToEdit?.text);
+    setEditTask(false);
+  };
+
+  const handleEditSave = (id) => {
+    setTasks(
+      tasks.map((task) => {
+        if (task.id === id) task.text = inputValue;
+        return task;
+      })
+    );
   };
 
   return (
@@ -54,6 +108,7 @@ export default function Home() {
 
         <div className="flex my-[19px] w-full gap-2">
           <input
+            onKeyDown={handleKeyDown}
             type="text"
             placeholder="Add a new task..."
             className="border border-[#E4E4E7]  px-[16px] py-[8px] w-[280px] rounded-md"
@@ -87,6 +142,10 @@ export default function Home() {
             isDone={task.isDone}
             handleOnchangeCheckBox={handleOnchangeCheckBox}
             handleDelete={() => handleDelete(task.id)}
+            handleEdit={() => handleEdit(task.id)}
+            editTask={editTask}
+            handleEditInput={handleEditInput}
+            handleEditSave={handleEditSave}
           />
         ))}
 
