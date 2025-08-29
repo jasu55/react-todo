@@ -1,6 +1,6 @@
 "use client";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button, Tasks } from "@/components";
 
@@ -8,7 +8,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [tasks, setTasks] = useState([]);
   const [status, setStatus] = useState("All");
-  const [editTask, setEditTask] = useState(true);
+  const [editInputValue, setEditInputValue] = useState("");
 
   const handleOnchange = (event) => {
     setInputValue(event.target.value);
@@ -19,7 +19,10 @@ export default function Home() {
       alert("Please enter a task.");
       return;
     }
-    setTasks([...tasks, { text: inputValue, isDone: false, id: uuidv4() }]);
+    setTasks([
+      ...tasks,
+      { text: inputValue, isDone: false, id: uuidv4(), isEdit: false },
+    ]);
     setInputValue("");
   };
 
@@ -30,7 +33,10 @@ export default function Home() {
         alert("Please enter a task.");
         return;
       }
-      setTasks([...tasks, { text: inputValue, isDone: false, id: uuidv4() }]);
+      setTasks([
+        ...tasks,
+        { text: inputValue, isDone: false, id: uuidv4() /* id:Date.now() */ },
+      ]);
       setInputValue("");
     }
   };
@@ -44,15 +50,6 @@ export default function Home() {
     if (status === "Active") return !task.isDone;
     return task.isDone;
   });
-
-  const handleOnchangeCheckBox = (event, id) => {
-    setTasks(
-      tasks.map((task) => {
-        if (task.id === id) task.isDone = event.target.checked;
-        return task;
-      })
-    );
-  };
 
   const handleDelete = (id) => {
     const taskToDelete = tasks.find((task) => task.id === id);
@@ -77,25 +74,27 @@ export default function Home() {
     }
   };
 
-  const handleEditInput = (event, id) => {
-    setTasks(
-      tasks.map((task) => {
-        if (task.id === id) task.text = event.target.value;
-        return task;
-      })
-    );
+  const handleEditInput = (event) => {
+    setEditInputValue(event.target.value);
   };
 
   const handleEdit = (id) => {
-    const taskToEdit = tasks.find((task) => task.id === id);
+    setTasks(
+      tasks.map((task) => {
+        if (task.id === id) task.isEdit = true;
+        return task;
+      })
+    );
     // const newTaskText = prompt("Edit task:", taskToEdit?.text);
-    setEditTask(false);
   };
 
   const handleEditSave = (id) => {
     setTasks(
       tasks.map((task) => {
-        if (task.id === id) task.text = inputValue;
+        if (task.id === id) {
+          task.text = editInputValue;
+        }
+        task.isEdit = false;
         return task;
       })
     );
@@ -137,13 +136,12 @@ export default function Home() {
         {filteredTasks.map((task) => (
           <Tasks
             key={task.id}
-            id={task.id}
-            taskText={task.text}
-            isDone={task.isDone}
-            handleOnchangeCheckBox={handleOnchangeCheckBox}
+            task={task}
+            tasks={tasks}
+            setTasks={setTasks}
             handleDelete={() => handleDelete(task.id)}
             handleEdit={() => handleEdit(task.id)}
-            editTask={editTask}
+            editTask={task.isEdit}
             handleEditInput={handleEditInput}
             handleEditSave={handleEditSave}
           />
