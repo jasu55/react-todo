@@ -1,172 +1,188 @@
 "use client";
 import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
-
-import { Button, Tasks } from "@/components";
+import { Button, Tasks, AddForm, Todo } from "@/components";
 
 export default function Home() {
+  const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [tasks, setTasks] = useState([]);
-  const [status, setStatus] = useState("All");
-  const [editInputValue, setEditInputValue] = useState("");
-
-  const handleOnchange = (event) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleOnClick = () => {
-    if (inputValue.trim() === "") {
-      alert("Please enter a task.");
-      return;
-    }
-    setTasks([
-      ...tasks,
-      { text: inputValue, isDone: false, id: uuidv4(), isEdit: false },
-    ]);
-    setInputValue("");
-  };
-// xaxa
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      console.log("EVENTKEY value", event.key, inputValue);
-      if (inputValue.trim() === "") {
-        alert("Please enter a task.");
-        return;
-      }
-      setTasks([
-        ...tasks,
-        { text: inputValue, isDone: false, id: uuidv4() /* id:Date.now() */ },
-      ]);
-      setInputValue("");
-    }
-  };
-
-  const handleStatus = (status) => {
-    setStatus(status);
-  };
-
-  const filteredTasks = tasks.filter((task) => {
-    if (status === "All") return true;
-    if (status === "Active") return !task.isDone;
-    return task.isDone;
-  });
-
-  const handleDelete = (id) => {
-    const taskToDelete = tasks.find((task) => task.id === id);
-    if (
-      window.confirm(
-        `Are you sure you want to delete "${taskToDelete?.text}" task?`
-      )
-    ) {
-      setTasks(tasks.filter((task) => task.id !== id));
-    }
-  };
-
-  const handleClearCompleted = () => {
-    if (tasks.filter((task) => task.isDone === true).length === 0) {
-      alert("No completed tasks to delete.");
-      return;
-    }
-    if (
-      window.confirm("Are you sure you want to delete all completed tasks?")
-    ) {
-      setTasks(tasks.filter((task) => task.isDone === false));
-    }
-  };
-
-  const handleEditInput = (event) => {
-    setEditInputValue(event.target.value);
-  };
-
-  const handleEdit = (id) => {
-    setTasks(
-      tasks.map((task) => {
-        if (task.id === id) task.isEdit = true;
-        return task;
-      })
-    );
-    // const newTaskText = prompt("Edit task:", taskToEdit?.text);
-  };
-
-  const handleEditSave = (id) => {
-    setTasks(
-      tasks.map((task) => {
-        if (task.id === id) {
-          task.text = editInputValue;
-        }
-        task.isEdit = false;
-        return task;
-      })
-    );
-  };
 
   return (
-    <div className="w-screen bg-[#F3F4F6] h-[1500px] pt-[20px]">
-      <div className="flex flex-col items-center  w-[377px] mx-auto rounded-md bg-[#FFFFFF] mt-[60px] px-[24px] py-[16px]  shadow-md">
-        <h3 className="text-xl font-semibold">To-Do list</h3>
-
-        <div className="flex my-[19px] w-full gap-2">
-          <input
-            onKeyDown={handleKeyDown}
-            type="text"
-            placeholder="Add a new task..."
-            className="border border-[#E4E4E7]  px-[16px] py-[8px] w-[280px] rounded-md"
-            onChange={handleOnchange}
-            value={inputValue}
-          />
-
-          <button
-            className="px-16px bg-[#3C82F6] text-white px-[16px] py-[8px] rounded-md"
-            onClick={handleOnClick}
-          >
-            Add
-          </button>
-        </div>
-
-        <div className="flex gap-[6px]  w-full">
-          <Button text="All" status={status} handleStatus={handleStatus} />
-          <Button text="Active" status={status} handleStatus={handleStatus} />
-          <Button
-            text="Completed"
-            status={status}
-            handleStatus={handleStatus}
-          />
-        </div>
-
-        {filteredTasks.map((task) => (
-          <Tasks
-            key={task.id}
-            task={task}
-            tasks={tasks}
-            setTasks={setTasks}
-            handleDelete={() => handleDelete(task.id)}
-            handleEdit={() => handleEdit(task.id)}
-            editTask={task.isEdit}
-            handleEditInput={handleEditInput}
-            handleEditSave={handleEditSave}
-          />
-        ))}
-
-        {tasks.length === 0 ? (
-          <p className="text-[#6B7280] py-[30px]">
-            No tasks yet. Add one above!
-          </p>
-        ) : (
-          <div className="border-t-[1px] border-[#E4E4E7]  w-full flex justify-between mb-[44px] pt-[16px]  ">
-            <p className="text-[#6B7280]  ">
-              {tasks.filter((task) => task.isDone === true).length} of{" "}
-              {tasks.length} tasks completed
-            </p>
-            <button onClick={handleClearCompleted} className="text-[#EF4444]">
-              Clear Completed
-            </button>
-          </div>
-        )}
-
-        <p className="text-[#6B7280]">
-          Powered by <span className="text-[#3B73ED]">Pinecone academy</span>
-        </p>
-      </div>
+    <div>
+      <AddForm
+        setTodos={setTodos}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+      />
+      <Button />
+      <Todo todos={todos} setTodos={setTodos} />
     </div>
   );
 }
+
+// export default function Home() {
+//   const [inputValue, setInputValue] = useState("");
+//   const [tasks, setTasks] = useState([]);
+//   const [status, setStatus] = useState("All");
+//   const [editInputValue, setEditInputValue] = useState("");
+
+//   const handleOnchange = (event) => {
+//     setInputValue(event.target.value);
+//   };
+
+//   const handleOnClick = () => {
+//     if (inputValue.trim() === "") {
+//       alert("Please enter a task.");
+//       return;
+//     }
+//     setTasks([
+//       ...tasks,
+//       { text: inputValue, isDone: false, id: uuidv4(), isEdit: false },
+//     ]);
+//     setInputValue("");
+//   };
+// // xaxa
+//   const handleKeyDown = (event) => {
+//     if (event.key === "Enter") {
+//       console.log("EVENTKEY value", event.key, inputValue);
+//       if (inputValue.trim() === "") {
+//         alert("Please enter a task.");
+//         return;
+//       }
+//       setTasks([
+//         ...tasks,
+//         { text: inputValue, isDone: false, id: uuidv4() /* id:Date.now() */ },
+//       ]);
+//       setInputValue("");
+//     }
+//   };
+
+//   const handleStatus = (status) => {
+//     setStatus(status);
+//   };
+
+//   const filteredTasks = tasks.filter((task) => {
+//     if (status === "All") return true;
+//     if (status === "Active") return !task.isDone;
+//     return task.isDone;
+//   });
+
+//   const handleDelete = (id) => {
+//     const taskToDelete = tasks.find((task) => task.id === id);
+//     if (
+//       window.confirm(
+//         `Are you sure you want to delete "${taskToDelete?.text}" task?`
+//       )
+//     ) {
+//       setTasks(tasks.filter((task) => task.id !== id));
+//     }
+//   };
+
+//   const handleClearCompleted = () => {
+//     if (tasks.filter((task) => task.isDone === true).length === 0) {
+//       alert("No completed tasks to delete.");
+//       return;
+//     }
+//     if (
+//       window.confirm("Are you sure you want to delete all completed tasks?")
+//     ) {
+//       setTasks(tasks.filter((task) => task.isDone === false));
+//     }
+//   };
+
+//   const handleEditInput = (event) => {
+//     setEditInputValue(event.target.value);
+//   };
+
+//   const handleEdit = (id) => {
+//     setTasks(
+//       tasks.map((task) => {
+//         if (task.id === id) task.isEdit = true;
+//         return task;
+//       })
+//     );
+//     // const newTaskText = prompt("Edit task:", taskToEdit?.text);
+//   };
+
+//   const handleEditSave = (id) => {
+//     setTasks(
+//       tasks.map((task) => {
+//         if (task.id === id) {
+//           task.text = editInputValue;
+//         }
+//         task.isEdit = false;
+//         return task;
+//       })
+//     );
+//   };
+
+//   return (
+//     <div className="w-screen bg-[#F3F4F6] h-[1500px] pt-[20px]">
+//       <div className="flex flex-col items-center  w-[377px] mx-auto rounded-md bg-[#FFFFFF] mt-[60px] px-[24px] py-[16px]  shadow-md">
+//         <h3 className="text-xl font-semibold">To-Do list</h3>
+
+//         <div className="flex my-[19px] w-full gap-2">
+//           <input
+//             onKeyDown={handleKeyDown}
+//             type="text"
+//             placeholder="Add a new task..."
+//             className="border border-[#E4E4E7]  px-[16px] py-[8px] w-[280px] rounded-md"
+//             onChange={handleOnchange}
+//             value={inputValue}
+//           />
+
+//           <button
+//             className="px-16px bg-[#3C82F6] text-white px-[16px] py-[8px] rounded-md"
+//             onClick={handleOnClick}
+//           >
+//             Add
+//           </button>
+//         </div>
+
+//         <div className="flex gap-[6px]  w-full">
+//           <Button text="All" status={status} handleStatus={handleStatus} />
+//           <Button text="Active" status={status} handleStatus={handleStatus} />
+//           <Button
+//             text="Completed"
+//             status={status}
+//             handleStatus={handleStatus}
+//           />
+//         </div>
+
+//         {filteredTasks.map((task) => (
+//           <Tasks
+//             key={task.id}
+//             task={task}
+//             tasks={tasks}
+//             setTasks={setTasks}
+//             handleDelete={() => handleDelete(task.id)}
+//             handleEdit={() => handleEdit(task.id)}
+//             editTask={task.isEdit}
+//             handleEditInput={handleEditInput}
+//             handleEditSave={handleEditSave}
+//           />
+//         ))}
+
+//         {tasks.length === 0 ? (
+//           <p className="text-[#6B7280] py-[30px]">
+//             No tasks yet. Add one above!
+//           </p>
+//         ) : (
+//           <div className="border-t-[1px] border-[#E4E4E7]  w-full flex justify-between mb-[44px] pt-[16px]  ">
+//             <p className="text-[#6B7280]  ">
+//               {tasks.filter((task) => task.isDone === true).length} of{" "}
+//               {tasks.length} tasks completed
+//             </p>
+//             <button onClick={handleClearCompleted} className="text-[#EF4444]">
+//               Clear Completed
+//             </button>
+//           </div>
+//         )}
+
+//         <p className="text-[#6B7280]">
+//           Powered by <span className="text-[#3B73ED]">Pinecone academy</span>
+//         </p>
+//       </div>
+//     </div>
+//   );
+// }

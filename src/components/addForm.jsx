@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 
-export function AddForm() {
-  const [inputValue, setInputValue] = useState("");
-
+export function AddForm({ setTodos, inputValue, setInputValue }) {
   const handleOnChange = (event) => setInputValue(event.target.value);
-  console.log(setInputValue);
+
+  const handleOnClick = () => {
+    setInputValue("");
+    setTodos((previous) => [
+      ...previous,
+      { text: inputValue, id: Date.now(), isDone: false },
+    ]);
+  };
+
   return (
     <div>
       <input
@@ -13,7 +19,7 @@ export function AddForm() {
         value={inputValue}
         onChange={handleOnChange}
       ></input>
-      <button>Add</button>
+      <button onClick={handleOnClick}>Add</button>
     </div>
   );
 }
